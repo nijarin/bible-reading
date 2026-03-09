@@ -24,19 +24,29 @@ th,td{
 border:1px solid #444;
 padding:8px;
 text-align:center;
+vertical-align:top;
 }
 
 th{
-background:#f2f2f2;
+background:#f0ea4f;
 }
 
+/* สลับสีแถว */
+
+tbody tr:nth-child(odd){
+background:#ffffff;
+}
+
+tbody tr:nth-child(even){
+background:#e6f2ff;
+}
 </style>
 </head>
 
 <body>
-
-<h2>ตารางผู้อ่านบทอ่าน</h2>
-
+<center>
+<h2>ตารางเวรผู้อ่านพระคัมภีร์และบทภาวนาเพื่อมวลชน</h2>
+</center>
 <table id="table">
 <thead>
 <tr>
@@ -55,9 +65,11 @@ background:#f2f2f2;
 
 function formatDate(dateStr){
 
-if(!dateStr.includes("-")) return dateStr
+if(!dateStr || !dateStr.includes("-")) return dateStr
 
 let d = new Date(dateStr)
+
+if(isNaN(d)) return dateStr
 
 let day = d.getDate()
 
@@ -68,6 +80,36 @@ let year = d.getFullYear()
 return day+" "+month[d.getMonth()]+" "+year
 
 }
+
+
+/* แสดงค่า (รองรับ array ทุกช่อง) */
+
+function renderValue(value,isDate=false){
+
+if(!value) return ""
+
+if(Array.isArray(value)){
+
+return value.map((v,i)=>{
+
+if(isDate && i==0){
+return formatDate(v)
+}
+
+return v
+
+}).join("<br>")
+
+}
+
+if(isDate){
+return formatDate(value)
+}
+
+return value
+
+}
+
 
 fetch("data.json")
 .then(res=>res.json())
@@ -82,7 +124,6 @@ let dateCount=0
 for(let i=0;i<rows.length;i++){
 
 let r = rows[i]
-
 let dateValue = r["วันที่"]
 
 if(dateValue==lastDate){
@@ -102,66 +143,54 @@ else break
 
 let tr=document.createElement("tr")
 
+
+/* วันที่ */
+
 if(dateValue!=lastDate){
 
 let td=document.createElement("td")
 td.rowSpan=dateCount
-
-/* รองรับ array */
-
-if(Array.isArray(dateValue)){
-
-let text=""
-
-dateValue.forEach((d,i)=>{
-
-if(i==0){
-text += formatDate(d)
-}else{
-text += "<br>"+d
-}
-
-})
-
-td.innerHTML=text
-
-}else{
-
-td.textContent=formatDate(dateValue)
-
-}
-
+td.innerHTML = renderValue(dateValue,true)
 tr.appendChild(td)
 
 }
 
 lastDate=dateValue
 
+
+/* วันเวลา */
+
 let tdTime=document.createElement("td")
-tdTime.textContent=r["วัน/เวลา"] || ""
+tdTime.innerHTML = renderValue(r["วัน/เวลา"])
 tr.appendChild(tdTime)
+
+
+/* บทอ่าน */
 
 if(!r["บทอ่านที่ 2"]){
 
 let td=document.createElement("td")
 td.colSpan=2
-td.textContent=r["บทอ่านที่ 1"] || ""
+td.innerHTML = renderValue(r["บทอ่านที่ 1"])
 tr.appendChild(td)
 
 }else{
 
 let td1=document.createElement("td")
-td1.textContent=r["บทอ่านที่ 1"] || ""
+td1.innerHTML = renderValue(r["บทอ่านที่ 1"])
 tr.appendChild(td1)
 
 let td2=document.createElement("td")
-td2.textContent=r["บทอ่านที่ 2"] || ""
+td2.innerHTML = renderValue(r["บทอ่านที่ 2"])
 tr.appendChild(td2)
 
 }
 
+
+/* บทมวลชน */
+
 let tdMass=document.createElement("td")
-tdMass.textContent=r["บทมวลชน"] || ""
+tdMass.innerHTML = renderValue(r["บทมวลชน"])
 tr.appendChild(tdMass)
 
 tbody.appendChild(tr)
