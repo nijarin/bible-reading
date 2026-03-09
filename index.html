@@ -1,25 +1,29 @@
 <!DOCTYPE html>
-<html lang="th">
+<html>
 <head>
 <meta charset="UTF-8">
 <title>ตารางผู้อ่านบทอ่าน</title>
 
 <style>
+
 body{
 font-family:sans-serif;
-padding:20px;
+}
+
+h2{
+margin-left:5%;
 }
 
 table{
 border-collapse:collapse;
-width:100%;
+width:90%;
+margin:auto;
 }
 
 th,td{
 border:1px solid #444;
-padding:6px;
+padding:8px;
 text-align:center;
-vertical-align:middle;
 }
 
 th{
@@ -43,30 +47,25 @@ background:#f2f2f2;
 <th>บทมวลชน</th>
 </tr>
 </thead>
-<tbody></tbody>
+<tbody>
+</tbody>
 </table>
 
 <script>
 
-function thaiDate(dateStr){
+function formatDate(dateStr){
 
-if(!dateStr || isNaN(Date.parse(dateStr))) return dateStr
+if(!dateStr.includes("-")) return dateStr
 
-let d=new Date(dateStr)
+let d = new Date(dateStr)
 
-let days=["อา.","จ.","อ.","พ.","พฤ.","ศ.","ส."]
+let day = d.getDate()
 
-let months=[
-"ม.ค.","ก.พ.","มี.ค.","เม.ย.","พ.ค.","มิ.ย.",
-"ก.ค.","ส.ค.","ก.ย.","ต.ค.","พ.ย.","ธ.ค."
-]
+let month = ["ม.ค.","ก.พ.","มี.ค.","เม.ย.","พ.ค.","มิ.ย.","ก.ค.","ส.ค.","ก.ย.","ต.ค.","พ.ย.","ธ.ค."]
 
-let day=days[d.getDay()]
-let date=d.getDate()
-let month=months[d.getMonth()]
-let year=d.getFullYear()+543
+let year = d.getFullYear()+543
 
-return `${day} ${date} ${month} ${year}`
+return day+" "+month[d.getMonth()]+" "+year
 
 }
 
@@ -74,73 +73,74 @@ fetch("data.json")
 .then(res=>res.json())
 .then(data=>{
 
-let rows=data.Sheet1
+let rows = data.Sheet1
+let tbody = document.querySelector("#table tbody")
 
-let tbody=document.querySelector("#table tbody")
+let lastDate=""
+let dateCount=0
 
-rows.forEach(row=>{
+for(let i=0;i<rows.length;i++){
+
+let r = rows[i]
+
+if(r["วันที่"]==lastDate){
+
+dateCount++
+
+}else{
+
+dateCount=1
+
+for(let j=i+1;j<rows.length;j++){
+if(rows[j]["วันที่"]==r["วันที่"]) dateCount++
+else break
+}
+
+}
 
 let tr=document.createElement("tr")
 
-/* วันที่ */
+if(r["วันที่"]!=lastDate){
 
-let tdDate=document.createElement("td")
-
-if(row.rowspan!=0){
-
-if(row.rowspan>1){
-tdDate.setAttribute("rowspan",row.rowspan)
-}
-
-tdDate.textContent=thaiDate(row["วันที่"])
-
-tr.appendChild(tdDate)
+let td=document.createElement("td")
+td.rowSpan=dateCount
+td.textContent=formatDate(r["วันที่"])
+tr.appendChild(td)
 
 }
 
-/* เวลา */
+lastDate=r["วันที่"]
 
 let tdTime=document.createElement("td")
-
-if(row.rowspan>0){
-
-if(row.rowspan>1){
-tdTime.setAttribute("rowspan",row.rowspan)
-}
-
-tdTime.textContent=row["วัน/เวลา"]||""
-
+tdTime.textContent=r["วัน/เวลา"] || ""
 tr.appendChild(tdTime)
 
-}
+if(!r["บทอ่านที่ 2"]){
 
-/* บทอ่านที่ 1 */
+let td=document.createElement("td")
+td.colSpan=2
+td.textContent=r["บทอ่านที่ 1"] || ""
+tr.appendChild(td)
+
+}else{
 
 let td1=document.createElement("td")
-
-td1.innerHTML=(row["บทอ่านที่ 1"]||"").replace(/\n/g,"<br>")
-
+td1.textContent=r["บทอ่านที่ 1"] || ""
 tr.appendChild(td1)
 
-/* บทอ่านที่ 2 */
-
 let td2=document.createElement("td")
-
-td2.innerHTML=(row["บทอ่านที่ 2"]||"").replace(/\n/g,"<br>")
-
+td2.textContent=r["บทอ่านที่ 2"] || ""
 tr.appendChild(td2)
 
-/* บทมวลชน */
+}
 
-let td3=document.createElement("td")
-
-td3.innerHTML=(row["บทมวลชน"]||"").replace(/\n/g,"<br>")
-
-tr.appendChild(td3)
+let tdMass=document.createElement("td")
+tdMass.textContent=r["บทมวลชน"] || ""
+tr.appendChild(tdMass)
 
 tbody.appendChild(tr)
 
-})
+}
 
 })
 
