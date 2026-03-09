@@ -83,7 +83,9 @@ for(let i=0;i<rows.length;i++){
 
 let r = rows[i]
 
-if(r["วันที่"]==lastDate){
+let dateValue = r["วันที่"]
+
+if(dateValue==lastDate){
 
 dateCount++
 
@@ -92,7 +94,7 @@ dateCount++
 dateCount=1
 
 for(let j=i+1;j<rows.length;j++){
-if(rows[j]["วันที่"]==r["วันที่"]) dateCount++
+if(rows[j]["วันที่"]==dateValue) dateCount++
 else break
 }
 
@@ -100,16 +102,40 @@ else break
 
 let tr=document.createElement("tr")
 
-if(r["วันที่"]!=lastDate){
+if(dateValue!=lastDate){
 
 let td=document.createElement("td")
 td.rowSpan=dateCount
-td.textContent=formatDate(r["วันที่"])
+
+/* รองรับ array */
+
+if(Array.isArray(dateValue)){
+
+let text=""
+
+dateValue.forEach((d,i)=>{
+
+if(i==0){
+text += formatDate(d)
+}else{
+text += "<br>"+d
+}
+
+})
+
+td.innerHTML=text
+
+}else{
+
+td.textContent=formatDate(dateValue)
+
+}
+
 tr.appendChild(td)
 
 }
 
-lastDate=r["วันที่"]
+lastDate=dateValue
 
 let tdTime=document.createElement("td")
 tdTime.textContent=r["วัน/เวลา"] || ""
