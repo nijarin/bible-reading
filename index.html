@@ -90,15 +90,22 @@ tableBody.appendChild(tr)
 </script>
 
 <script>
-
 function thaiDate(dateStr){
+
+if(!dateStr || dateStr.trim()===""){
+return ""
+}
 
 let d = new Date(dateStr)
 
+if(isNaN(d)){
+return dateStr
+}
+
 let months = [
-"มกราคม","กุมภาพันธ์","มีนาคม","เมษายน",
-"พฤษภาคม","มิถุนายน","กรกฎาคม","สิงหาคม",
-"กันยายน","ตุลาคม","พฤศจิกายน","ธันวาคม"
+"ม.ค.","ก.พ.","มี.ค.","เม.ย.",
+"พ.ค.","มิ.ย.","ก.ค.","ส.ค.",
+"ก.ย.","ต.ค.","พ.ย.","ธ.ค."
 ]
 
 let day = d.getDate()
@@ -107,52 +114,6 @@ let year = d.getFullYear() + 543
 
 return day + " " + month + " " + year
 }
-
-fetch("b.csv")
-.then(res => res.text())
-.then(data => {
-
-let rows = data.trim().split("\n")
-
-let tableHead = document.querySelector("#table thead")
-let tableBody = document.querySelector("#table tbody")
-
-rows.forEach((row,index)=>{
-
-let cols = row.split(",")
-
-let tr = document.createElement("tr")
-
-cols.forEach((col,colIndex)=>{
-
-let cell
-
-if(index===0){
-cell = document.createElement("th")
-}else{
-cell = document.createElement("td")
-}
-
-if(colIndex === 0 && index !== 0){
-cell.textContent = thaiDate(col.trim())
-}else{
-cell.textContent = col.trim()
-}
-
-tr.appendChild(cell)
-
-})
-
-if(index===0){
-tableHead.appendChild(tr)
-}else{
-tableBody.appendChild(tr)
-}
-
-})
-
-})
-
 </script>
 
 
