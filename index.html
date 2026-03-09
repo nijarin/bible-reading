@@ -1,32 +1,29 @@
+```html
 <!DOCTYPE html>
-<html>
+<html lang="th">
 <head>
 <meta charset="UTF-8">
-<title>ตารางจาก JSON</title>
+<title>ตารางผู้อ่านบทอ่าน</title>
 
 <style>
-
 body{
 font-family:sans-serif;
+padding:20px;
 }
 
 table{
-border-collapse: collapse;
-width:90%;
-margin:auto;
+border-collapse:collapse;
+width:100%;
 }
 
 th,td{
-border:1px solid #333;
-padding:8px;
+border:1px solid #444;
+padding:6px;
 text-align:center;
+vertical-align:middle;
 }
 
 th{
-background:#ddd;
-}
-
-tr:nth-child(even){
 background:#f2f2f2;
 }
 
@@ -35,81 +32,112 @@ background:#f2f2f2;
 
 <body>
 
-<h2 style="text-align:center">ตารางข้อมูล</h2>
+<h2>ตารางผู้อ่านบทอ่าน</h2>
 
 <table id="table">
-<thead></thead>
+<thead>
+<tr>
+<th>วันที่</th>
+<th>วัน/เวลา</th>
+<th>บทอ่านที่ 1</th>
+<th>บทอ่านที่ 2</th>
+<th>บทมวลชน</th>
+</tr>
+</thead>
 <tbody></tbody>
 </table>
 
 <script>
 
+function thaiDate(dateStr){
+
+if(!dateStr || isNaN(Date.parse(dateStr))) return dateStr
+
+let d=new Date(dateStr)
+
+let days=["อา.","จ.","อ.","พ.","พฤ.","ศ.","ส."]
+
+let months=[
+"ม.ค.","ก.พ.","มี.ค.","เม.ย.","พ.ค.","มิ.ย.",
+"ก.ค.","ส.ค.","ก.ย.","ต.ค.","พ.ย.","ธ.ค."
+]
+
+let day=days[d.getDay()]
+let date=d.getDate()
+let month=months[d.getMonth()]
+let year=d.getFullYear()+543
+
+return `${day} ${date} ${month} ${year}`
+
+}
+
 fetch("data.json")
-.then(res => res.json())
-.then(data => {
+.then(res=>res.json())
+.then(data=>{
 
-let sheet = Object.keys(data)[0]
-let rows = data[sheet]
+let rows=data.Sheet1
 
-let thead = document.querySelector("#table thead")
-let tbody = document.querySelector("#table tbody")
+let tbody=document.querySelector("#table tbody")
 
-// header
-let head = document.createElement("tr")
-
-;["วันที่","วันเวลา","บทอ่านที่1","บทอ่านที่2"].forEach(t=>{
-let th = document.createElement("th")
-th.textContent = t
-head.appendChild(th)
-})
-
-thead.appendChild(head)
-
-
-// body
 rows.forEach(row=>{
 
-let tr = document.createElement("tr")
+let tr=document.createElement("tr")
 
-// date
-let td1 = document.createElement("td")
-td1.textContent = thaiDate(row.date)
+/* วันที่ */
+
+let tdDate=document.createElement("td")
+
+if(row.rowspan>0){
+
+if(row.rowspan>1){
+tdDate.setAttribute("rowspan",row.rowspan)
+}
+
+tdDate.textContent=thaiDate(row["วันที่"])
+
+tr.appendChild(tdDate)
+
+}
+
+/* เวลา */
+
+let tdTime=document.createElement("td")
+
+if(row.rowspan>0){
+
+if(row.rowspan>1){
+tdTime.setAttribute("rowspan",row.rowspan)
+}
+
+tdTime.textContent=row["วัน/เวลา"]||""
+
+tr.appendChild(tdTime)
+
+}
+
+/* บทอ่านที่ 1 */
+
+let td1=document.createElement("td")
+
+td1.innerHTML=(row["บทอ่านที่ 1"]||"").replace(/\n/g,"<br>")
+
 tr.appendChild(td1)
 
-// time
-let td2 = document.createElement("td")
-td2.textContent = row.time
+/* บทอ่านที่ 2 */
+
+let td2=document.createElement("td")
+
+td2.innerHTML=(row["บทอ่านที่ 2"]||"").replace(/\n/g,"<br>")
+
 tr.appendChild(td2)
 
+/* บทมวลชน */
 
-// reader1
-if(row.rowspan !== 0){
+let td3=document.createElement("td")
 
-let td3 = document.createElement("td")
+td3.innerHTML=(row["บทมวลชน"]||"").replace(/\n/g,"<br>")
 
-if(row.rowspan>1){
-td3.setAttribute("rowspan",row.rowspan)
-}
-
-td3.innerHTML = row.reader1.replace(/\n/g,"<br>")
 tr.appendChild(td3)
-
-}
-
-
-// reader2
-if(row.rowspan !== 0){
-
-let td4 = document.createElement("td")
-
-if(row.rowspan>1){
-td4.setAttribute("rowspan",row.rowspan)
-}
-
-td4.innerHTML = row.reader2.replace(/\n/g,"<br>")
-tr.appendChild(td4)
-
-}
 
 tbody.appendChild(tr)
 
@@ -119,34 +147,6 @@ tbody.appendChild(tr)
 
 </script>
 
-<script>
-
-function thaiDate(dateStr){
-
-if(!dateStr || dateStr.trim()===""){
-return ""
-}
-
-let d = new Date(dateStr)
-
-if(isNaN(d)){
-return dateStr
-}
-
-let months = [
-"ม.ค.","ก.พ.","มี.ค.","เม.ย.",
-"พ.ค.","มิ.ย.","ก.ค.","ส.ค.",
-"ก.ย.","ต.ค.","พ.ย.","ธ.ค."
-]
-
-let day = d.getDate()
-let month = months[d.getMonth()]
-let year = d.getFullYear() + 543
-
-return day + " " + month + " " + year
-}
-
-</script>
-
 </body>
 </html>
+```
