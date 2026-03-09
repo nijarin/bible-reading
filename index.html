@@ -14,6 +14,13 @@ h2{
 margin-left:5%;
 }
 
+#filter{
+margin-left:5%;
+margin-bottom:10px;
+font-size:16px;
+padding:4px;
+}
+
 table{
 border-collapse:collapse;
 width:90%;
@@ -31,8 +38,6 @@ th{
 background:#f0ea4f;
 }
 
-/* สลับสีแถว */
-
 tbody tr:nth-child(odd){
 background:#ffffff;
 }
@@ -40,13 +45,17 @@ background:#ffffff;
 tbody tr:nth-child(even){
 background:#e6f2ff;
 }
+
 </style>
+
 </head>
 
 <body>
-<center>
+
 <h2>ตารางเวรผู้อ่านพระคัมภีร์และบทภาวนาเพื่อมวลชน</h2>
-</center>
+
+<select id="filter"></select>
+
 <table id="table">
 <thead>
 <tr>
@@ -57,32 +66,37 @@ background:#e6f2ff;
 <th>บทมวลชน</th>
 </tr>
 </thead>
-<tbody>
-</tbody>
+<tbody></tbody>
 </table>
 
 <script>
+
+const monthNames=[
+"มกราคม","กุมภาพันธ์","มีนาคม","เมษายน","พฤษภาคม","มิถุนายน",
+"กรกฎาคม","สิงหาคม","กันยายน","ตุลาคม","พฤศจิกายน","ธันวาคม"
+]
+
+let allRows=[]
+
 
 function formatDate(dateStr){
 
 if(!dateStr || !dateStr.includes("-")) return dateStr
 
-let d = new Date(dateStr)
+let d=new Date(dateStr)
 
 if(isNaN(d)) return dateStr
 
-let day = d.getDate()
+let day=d.getDate()
 
-let month = ["ม.ค.","ก.พ.","มี.ค.","เม.ย.","พ.ค.","มิ.ย.","ก.ค.","ส.ค.","ก.ย.","ต.ค.","พ.ย.","ธ.ค."]
+let month=["ม.ค.","ก.พ.","มี.ค.","เม.ย.","พ.ค.","มิ.ย.","ก.ค.","ส.ค.","ก.ย.","ต.ค.","พ.ย.","ธ.ค."]
 
-let year = d.getFullYear()
+let year=d.getFullYear()
 
 return day+" "+month[d.getMonth()]+" "+year
 
 }
 
-
-/* แสดงค่า (รองรับ array ทุกช่อง) */
 
 function renderValue(value,isDate=false){
 
@@ -92,9 +106,7 @@ if(Array.isArray(value)){
 
 return value.map((v,i)=>{
 
-if(isDate && i==0){
-return formatDate(v)
-}
+if(isDate && i==0) return formatDate(v)
 
 return v
 
@@ -102,29 +114,42 @@ return v
 
 }
 
-if(isDate){
-return formatDate(value)
-}
+if(isDate) return formatDate(value)
 
 return value
 
 }
 
 
-fetch("data.json")
-.then(res=>res.json())
-.then(data=>{
+function getYearMonth(dateValue){
 
-let rows = data.Sheet1
-let tbody = document.querySelector("#table tbody")
+let d = Array.isArray(dateValue) ? dateValue[0] : dateValue
+
+if(!d || !d.includes("-")) return null
+
+let dt=new Date(d)
+
+if(isNaN(dt)) return null
+
+return dt.getFullYear()+"-"+(dt.getMonth()+1)
+
+}
+
+
+function renderTable(rows){
+
+let tbody=document.querySelector("#table tbody")
+
+tbody.innerHTML=""
 
 let lastDate=""
 let dateCount=0
 
 for(let i=0;i<rows.length;i++){
 
-let r = rows[i]
-let dateValue = r["วันที่"]
+let r=rows[i]
+
+let dateValue=r["วันที่"]
 
 if(dateValue==lastDate){
 
@@ -143,14 +168,14 @@ else break
 
 let tr=document.createElement("tr")
 
-
-/* วันที่ */
-
 if(dateValue!=lastDate){
 
 let td=document.createElement("td")
+
 td.rowSpan=dateCount
-td.innerHTML = renderValue(dateValue,true)
+
+td.innerHTML=renderValue(dateValue,true)
+
 tr.appendChild(td)
 
 }
@@ -158,44 +183,134 @@ tr.appendChild(td)
 lastDate=dateValue
 
 
-/* วันเวลา */
-
 let tdTime=document.createElement("td")
-tdTime.innerHTML = renderValue(r["วัน/เวลา"])
+
+tdTime.innerHTML=renderValue(r["วัน/เวลา"])
+
 tr.appendChild(tdTime)
 
-
-/* บทอ่าน */
 
 if(!r["บทอ่านที่ 2"]){
 
 let td=document.createElement("td")
+
 td.colSpan=2
-td.innerHTML = renderValue(r["บทอ่านที่ 1"])
+
+td.innerHTML=renderValue(r["บทอ่านที่ 1"])
+
 tr.appendChild(td)
 
 }else{
 
 let td1=document.createElement("td")
-td1.innerHTML = renderValue(r["บทอ่านที่ 1"])
+
+td1.innerHTML=renderValue(r["บทอ่านที่ 1"])
+
 tr.appendChild(td1)
 
 let td2=document.createElement("td")
-td2.innerHTML = renderValue(r["บทอ่านที่ 2"])
+
+td2.innerHTML=renderValue(r["บทอ่านที่ 2"])
+
 tr.appendChild(td2)
 
 }
 
 
-/* บทมวลชน */
-
 let tdMass=document.createElement("td")
-tdMass.innerHTML = renderValue(r["บทมวลชน"])
+
+tdMass.innerHTML=renderValue(r["บทมวลชน"])
+
 tr.appendChild(tdMass)
 
 tbody.appendChild(tr)
 
 }
+
+}
+
+
+function buildFilter(){
+
+let select=document.getElementById("filter")
+
+select.innerHTML=""
+
+/* ตัวเลือกทั้งหมด */
+
+let allOption=document.createElement("option")
+allOption.value="all"
+allOption.text="ทั้งหมด"
+select.appendChild(allOption)
+
+
+let months=new Set()
+
+allRows.forEach(r=>{
+
+let ym=getYearMonth(r["วันที่"])
+
+if(ym) months.add(ym)
+
+})
+
+let sorted=[...months].sort()
+
+sorted.forEach(m=>{
+
+let [y,mo]=m.split("-")
+
+let opt=document.createElement("option")
+
+opt.value=m
+
+opt.text=monthNames[mo-1]+" "+y
+
+select.appendChild(opt)
+
+})
+
+
+select.onchange=()=>{
+
+let val=select.value
+
+if(val==="all"){
+
+renderTable(allRows)
+return
+
+}
+
+let filtered=allRows.filter(r=>{
+
+let ym=getYearMonth(r["วันที่"])
+
+return ym==val
+
+})
+
+renderTable(filtered)
+
+}
+
+/* ค่าเริ่มต้น */
+
+select.value="all"
+renderTable(allRows)
+
+}
+
+
+fetch("data.json")
+
+.then(r=>r.json())
+
+.then(data=>{
+
+allRows=data.Sheet1
+
+buildFilter()
 
 })
 
