@@ -136,6 +136,22 @@ return dt.getFullYear()+"-"+(dt.getMonth()+1)
 }
 
 
+/* function เรียงวันที่ */
+
+function sortRows(rows){
+
+return rows.sort((a,b)=>{
+
+let da = Array.isArray(a["วันที่"]) ? a["วันที่"][0] : a["วันที่"]
+let db = Array.isArray(b["วันที่"]) ? b["วันที่"][0] : b["วันที่"]
+
+return new Date(da) - new Date(db)
+
+})
+
+}
+
+
 function renderTable(rows){
 
 let tbody=document.querySelector("#table tbody")
@@ -275,9 +291,14 @@ select.onchange=()=>{
 
 let val=select.value
 
+/* ถ้าเลือกทั้งหมด */
+
 if(val==="all"){
 
-renderTable(allRows)
+let rows=sortRows([...allRows])
+
+renderTable(rows)
+
 return
 
 }
@@ -290,6 +311,8 @@ return ym==val
 
 })
 
+filtered=sortRows(filtered)
+
 renderTable(filtered)
 
 }
@@ -297,7 +320,10 @@ renderTable(filtered)
 /* ค่าเริ่มต้น */
 
 select.value="all"
-renderTable(allRows)
+
+let rows=sortRows([...allRows])
+
+renderTable(rows)
 
 }
 
