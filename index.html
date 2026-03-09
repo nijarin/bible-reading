@@ -40,7 +40,6 @@ background:#f2f2f2;
 <thead></thead>
 <tbody></tbody>
 </table>
-
 <script>
 
 fetch("b.csv")
@@ -52,13 +51,13 @@ let rows = data.trim().split("\n")
 let tableHead = document.querySelector("#table thead")
 let tableBody = document.querySelector("#table tbody")
 
-cols.forEach((col,colIndex)=>{
+rows.forEach((row,index)=>{
 
 let cols = row.split(",")
 
 let tr = document.createElement("tr")
 
-cols.forEach(col=>{
+cols.forEach((col,colIndex)=>{
 
 let cell
 
@@ -68,7 +67,12 @@ cell = document.createElement("th")
 cell = document.createElement("td")
 }
 
+if(colIndex === 0 && index !== 0){
+cell.textContent = thaiDate(col.trim())
+}else{
 cell.textContent = col.trim()
+}
+
 tr.appendChild(cell)
 
 })
@@ -84,23 +88,73 @@ tableBody.appendChild(tr)
 })
 
 </script>
+
 <script>
+
 function thaiDate(dateStr){
 
-  let d = new Date(dateStr)
+let d = new Date(dateStr)
 
-  let months = [
-    "มกราคม","กุมภาพันธ์","มีนาคม","เมษายน",
-    "พฤษภาคม","มิถุนายน","กรกฎาคม","สิงหาคม",
-    "กันยายน","ตุลาคม","พฤศจิกายน","ธันวาคม"
-  ]
+let months = [
+"มกราคม","กุมภาพันธ์","มีนาคม","เมษายน",
+"พฤษภาคม","มิถุนายน","กรกฎาคม","สิงหาคม",
+"กันยายน","ตุลาคม","พฤศจิกายน","ธันวาคม"
+]
 
-  let day = d.getDate()
-  let month = months[d.getMonth()]
-  let year = d.getFullYear()
+let day = d.getDate()
+let month = months[d.getMonth()]
+let year = d.getFullYear() + 543
 
-  return day + " " + month + " " + year
+return day + " " + month + " " + year
 }
+
+fetch("b.csv")
+.then(res => res.text())
+.then(data => {
+
+let rows = data.trim().split("\n")
+
+let tableHead = document.querySelector("#table thead")
+let tableBody = document.querySelector("#table tbody")
+
+rows.forEach((row,index)=>{
+
+let cols = row.split(",")
+
+let tr = document.createElement("tr")
+
+cols.forEach((col,colIndex)=>{
+
+let cell
+
+if(index===0){
+cell = document.createElement("th")
+}else{
+cell = document.createElement("td")
+}
+
+if(colIndex === 0 && index !== 0){
+cell.textContent = thaiDate(col.trim())
+}else{
+cell.textContent = col.trim()
+}
+
+tr.appendChild(cell)
+
+})
+
+if(index===0){
+tableHead.appendChild(tr)
+}else{
+tableBody.appendChild(tr)
+}
+
+})
+
+})
+
 </script>
+
+
 </body>
 </html>
