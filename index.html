@@ -87,7 +87,7 @@ let tr=document.createElement("tr")
 
 let tdDate=document.createElement("td")
 
-if(row.rowspan>0){
+if(row.rowspan!=0){
 
 if(row.rowspan>1){
 tdDate.setAttribute("rowspan",row.rowspan)
