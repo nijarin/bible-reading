@@ -48,53 +48,76 @@ fetch("data.json")
 .then(res => res.json())
 .then(data => {
 
-let sheet = Object.keys(data)[0]   // ใช้ sheet แรก
+let sheet = Object.keys(data)[0]
 let rows = data[sheet]
 
-let tableHead = document.querySelector("#table thead")
-let tableBody = document.querySelector("#table tbody")
+let thead = document.querySelector("#table thead")
+let tbody = document.querySelector("#table tbody")
 
 // header
-let headerRow = document.createElement("tr")
+let head = document.createElement("tr")
 
-Object.keys(rows[0]).forEach(col => {
-
+;["วันที่","วันเวลา","บทอ่านที่1","บทอ่านที่2"].forEach(t=>{
 let th = document.createElement("th")
-th.textContent = col
-headerRow.appendChild(th)
-
+th.textContent = t
+head.appendChild(th)
 })
 
-tableHead.appendChild(headerRow)
+thead.appendChild(head)
 
 
 // body
-rows.forEach(row => {
+rows.forEach(row=>{
 
 let tr = document.createElement("tr")
 
-Object.values(row).forEach((value,index) => {
+// date
+let td1 = document.createElement("td")
+td1.textContent = thaiDate(row.date)
+tr.appendChild(td1)
 
-let td = document.createElement("td")
+// time
+let td2 = document.createElement("td")
+td2.textContent = row.time
+tr.appendChild(td2)
 
-if(index === 0){
-td.textContent = thaiDate(value)
-}else{
-td.textContent = value
+
+// reader1
+if(row.rowspan !== 0){
+
+let td3 = document.createElement("td")
+
+if(row.rowspan>1){
+td3.setAttribute("rowspan",row.rowspan)
 }
 
-tr.appendChild(td)
+td3.innerHTML = row.reader1.replace(/\n/g,"<br>")
+tr.appendChild(td3)
 
-})
+}
 
-tableBody.appendChild(tr)
+
+// reader2
+if(row.rowspan !== 0){
+
+let td4 = document.createElement("td")
+
+if(row.rowspan>1){
+td4.setAttribute("rowspan",row.rowspan)
+}
+
+td4.innerHTML = row.reader2.replace(/\n/g,"<br>")
+tr.appendChild(td4)
+
+}
+
+tbody.appendChild(tr)
 
 })
 
 })
 
 </script>
-
 
 <script>
 
