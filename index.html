@@ -2,9 +2,10 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>ตารางจาก CSV</title>
+<title>ตารางจาก JSON</title>
 
 <style>
+
 body{
 font-family:sans-serif;
 }
@@ -28,8 +29,8 @@ background:#ddd;
 tr:nth-child(even){
 background:#f2f2f2;
 }
-</style>
 
+</style>
 </head>
 
 <body>
@@ -40,48 +41,53 @@ background:#f2f2f2;
 <thead></thead>
 <tbody></tbody>
 </table>
+
 <script>
 
-fetch("b.csv")
-.then(res => res.text())
+fetch("data.json")
+.then(res => res.json())
 .then(data => {
 
-let rows = data.trim().split("\n")
+let sheet = Object.keys(data)[0]   // ใช้ sheet แรก
+let rows = data[sheet]
 
 let tableHead = document.querySelector("#table thead")
 let tableBody = document.querySelector("#table tbody")
 
-rows.forEach((row,index)=>{
+// header
+let headerRow = document.createElement("tr")
 
-let cols = row.split(",")
+Object.keys(rows[0]).forEach(col => {
 
-let tr = document.createElement("tr")
-
-cols.forEach((col,colIndex)=>{
-
-let cell
-
-if(index===0){
-cell = document.createElement("th")
-}else{
-cell = document.createElement("td")
-}
-
-if(colIndex === 0 && index !== 0){
-cell.textContent = thaiDate(col.trim())
-}else{
-cell.textContent = col.trim()
-}
-
-tr.appendChild(cell)
+let th = document.createElement("th")
+th.textContent = col
+headerRow.appendChild(th)
 
 })
 
-if(index===0){
-tableHead.appendChild(tr)
+tableHead.appendChild(headerRow)
+
+
+// body
+rows.forEach(row => {
+
+let tr = document.createElement("tr")
+
+Object.values(row).forEach((value,index) => {
+
+let td = document.createElement("td")
+
+if(index === 0){
+td.textContent = thaiDate(value)
 }else{
-tableBody.appendChild(tr)
+td.textContent = value
 }
+
+tr.appendChild(td)
+
+})
+
+tableBody.appendChild(tr)
 
 })
 
@@ -89,7 +95,9 @@ tableBody.appendChild(tr)
 
 </script>
 
+
 <script>
+
 function thaiDate(dateStr){
 
 if(!dateStr || dateStr.trim()===""){
@@ -114,8 +122,8 @@ let year = d.getFullYear() + 543
 
 return day + " " + month + " " + year
 }
-</script>
 
+</script>
 
 </body>
 </html>
