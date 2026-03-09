@@ -84,6 +84,23 @@ tableBody.appendChild(tr)
 })
 
 </script>
+<script>
+function thaiDate(dateStr){
 
+  let d = new Date(dateStr)
+
+  let months = [
+    "มกราคม","กุมภาพันธ์","มีนาคม","เมษายน",
+    "พฤษภาคม","มิถุนายน","กรกฎาคม","สิงหาคม",
+    "กันยายน","ตุลาคม","พฤศจิกายน","ธันวาคม"
+  ]
+
+  let day = d.getDate()
+  let month = months[d.getMonth()]
+  let year = d.getFullYear()
+
+  return day + " " + month + " " + year
+}
+</script>
 </body>
 </html>
